@@ -192,7 +192,7 @@ client.once(Events.ClientReady, async () => {
     ]);
 
     console.log('Slash commands registered');
-});});
+});
 
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isChatInputCommand()) return;
