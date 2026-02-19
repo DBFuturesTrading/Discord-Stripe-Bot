@@ -52,6 +52,112 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       console.error('❌ Error assigning role:', error);
     }
   }
+// REMOVE ROLE ON REFUND
+if (event.type === 'charge.refunded') {
+
+    const charge = event.data.object;
+
+    try {
+        const sessions = await stripe.checkout.sessions.list({
+            payment_intent: charge.payment_intent,
+            limit: 1
+        });
+
+        if (sessions.data.length > 0) {
+
+            const discordId = sessions.data[0].client_reference_id;
+
+            const guild = await client.guilds.fetch(process.env.GUILD_ID);
+            const member = await guild.members.fetch(discordId);
+
+            await member.roles.remove(process.env.PREMIUM_ROLE_ID);
+
+            console.log(`❌ Role removed from user ${discordId}`);
+        }
+
+    } catch (error) {
+        console.error("❌ Error removing role:", error);
+    }
+}
+// REMOVE ROLE ON SUBSCRIPTION CANCEL
+if (event.type === 'customer.subscription.deleted') {
+
+    const subscription = event.data.object;
+
+    try {
+        const sessions = await stripe.checkout.sessions.list({
+            subscription: subscription.id,
+            limit: 1
+        });
+
+        if (sessions.data.length > 0) {
+
+            const discordId = sessions.data[0].client_reference_id;
+
+            const guild = await client.guilds.fetch(process.env.GUILD_ID);
+            const member = await guild.members.fetch(discordId);
+
+            await member.roles.remove(process.env.PREMIUM_ROLE_ID);
+
+            console.log(`❌ Role removed (subscription ended) for ${discordId}`);
+        }
+
+    } catch (error) {
+        console.error("❌ Error removing role after subscription deletion:", error);
+    }
+}
+if (event.type === 'invoice.paid') {
+
+    const invoice = event.data.object;
+
+    try {
+        const sessions = await stripe.checkout.sessions.list({
+            subscription: invoice.subscription,
+            limit: 1
+        });
+
+        if (sessions.data.length > 0) {
+
+            const discordId = sessions.data[0].client_reference_id;
+
+            const guild = await client.guilds.fetch(process.env.GUILD_ID);
+            const member = await guild.members.fetch(discordId);
+
+            await member.roles.add(process.env.PREMIUM_ROLE_ID);
+
+            console.log(`✅ Role ensured active for ${discordId}`);
+        }
+
+    } catch (error) {
+        console.error("Error handling invoice.paid:", error);
+    }
+}
+if (event.type === 'invoice.payment_failed') {
+
+    const invoice = event.data.object;
+
+    try {
+        const sessions = await stripe.checkout.sessions.list({
+            subscription: invoice.subscription,
+            limit: 1
+        });
+
+        if (sessions.data.length > 0) {
+
+            const discordId = sessions.data[0].client_reference_id;
+
+            const guild = await client.guilds.fetch(process.env.GUILD_ID);
+            const member = await guild.members.fetch(discordId);
+
+            await member.roles.remove(process.env.PREMIUM_ROLE_ID);
+
+            console.log(`❌ Role removed due to failed payment for ${discordId}`);
+        }
+
+    } catch (error) {
+        console.error("Error handling payment failure:", error);
+    }
+}
 
   res.status(200).send();
 });
