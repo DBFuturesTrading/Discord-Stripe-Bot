@@ -177,9 +177,22 @@ const client = new Client({
   ]
 });
 
-client.once(Events.ClientReady, () => {
+client.once(Events.ClientReady, async () => {
   console.log('🤖 Discord Bot is Online');
-});
+    // Register slash commands
+    await client.application.commands.set([
+        {
+            name: 'subscribe',
+            description: 'Subscribe to premium'
+        },
+        {
+            name: 'cancel',
+            description: 'Cancel your subscription at the end of the billing period'
+        }
+    ]);
+
+    console.log('Slash commands registered');
+});});
 
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isChatInputCommand()) return;
