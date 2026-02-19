@@ -205,7 +205,38 @@ client.on(Events.InteractionCreate, async interaction => {
         });
       }
     }
+  }if (interaction.commandName === 'cancel') {
+  try {
+    await interaction.deferReply({ ephemeral: true });
+
+    const discordId = interaction.user.id;
+
+    // Find Stripe checkout session for this user
+    const sessions = await stripe.checkout.sessions.list({
+      limit: 100,
+    });
+
+    const session = sessions.data.find(
+      s => s.client_reference_id === discordId
+    );
+
+    if (!session || !session.subscription) {
+      return interaction.editReply("No active subscription found.");
+    }
+
+    await stripe.subscriptions.update(session.subscription, {
+      cancel_at_period_end: true,
+    });
+
+    interaction.editReply(
+      "✅ Your subscription has been scheduled to cancel at the end of the billing period. You will keep access until then."
+    );
+
+  } catch (error) {
+    console.error("❌ Error in cancel command:", error);
+    interaction.editReply("Something went wrong. Please try again.");
   }
+}
 });
 
 client.login(process.env.DISCORD_TOKEN);
