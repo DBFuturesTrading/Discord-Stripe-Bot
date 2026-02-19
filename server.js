@@ -45,7 +45,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       const guild = await client.guilds.fetch(process.env.GUILD_ID);
       const member = await guild.members.fetch(discordId);
 
-      await member.roles.add(process.env.DISCORD_ROLE_ID);
+      await member.roles.add(process.env.PREMIUM_ROLE_ID);
 
       console.log(`🎉 Role given to user ${discordId}`);
     } catch (error) {
