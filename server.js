@@ -180,6 +180,11 @@ const client = new Client({
 client.once(Events.ClientReady, async () => {
   console.log('🤖 Discord Bot is Online');
 
+   const guild = await client.guilds.fetch(process.env.GUILD_ID);
+
+    // Clear old guild commands
+    await guild.commands.set([]);
+  
       // Clear ALL existing commands
     await client.application.commands.set([]);
 
