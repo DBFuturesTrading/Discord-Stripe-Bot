@@ -182,10 +182,6 @@ client.once(Events.ClientReady, async () => {
     // Register slash commands
     await client.application.commands.set([
         {
-            name: 'subscribe',
-            description: 'Subscribe to premium'
-        },
-        {
             name: 'cancel',
             description: 'Cancel your subscription at the end of the billing period'
         }
