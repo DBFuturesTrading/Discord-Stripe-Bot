@@ -179,8 +179,16 @@ const client = new Client({
 
 client.once(Events.ClientReady, async () => {
   console.log('🤖 Discord Bot is Online');
-    // Register slash commands
+
+      // Clear ALL existing commands
+    await client.application.commands.set([]);
+
+    // Register fresh commands
     await client.application.commands.set([
+        {
+            name: 'subscribe',
+            description: 'Subscribe to DBFuturesTrading Elite Membership'
+        },
         {
             name: 'cancel',
             description: 'Cancel your subscription at the end of the billing period'
